@@ -22,5 +22,14 @@ return {
         },
       },
     },
+    keys = {
+      {
+        "<leader>ta",
+        function()
+          require("neotest").run.attach()
+        end,
+        desc = "Attach",
+      },
+    },
   },
 }
