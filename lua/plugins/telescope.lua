@@ -1,7 +1,7 @@
 return {
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.2",
+    -- tag = "0.1.2",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-live-grep-args.nvim",
@@ -80,20 +80,6 @@ return {
 
       vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
       vim.keymap.set("n", "<leader>sb", require("telescope.builtin").git_branches, { desc = "[G]it [B]ranches" })
-
-      vim.keymap.set(
-        "n",
-        "<leader>sr",
-        require("telescope").extensions.frecency.frecency,
-        { desc = "[S]earch [R]ecent", noremap = true, silent = true }
-      )
-    end,
-  },
-  {
-    "nvim-telescope/telescope-frecency.nvim",
-    dependencies = { "kkharji/sqlite.lua" },
-    config = function()
-      require("telescope").load_extension("frecency")
     end,
   },
   { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
