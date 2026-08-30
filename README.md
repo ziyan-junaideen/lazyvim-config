@@ -51,3 +51,60 @@ locally.
 > `diffget //2`, which shadows the `<leader>gh` hunks prefix — so `<leader>ghb`
 > and friends only fire once `timeoutlen` elapses. Rebinding the fugitive
 > mergetool maps (e.g. to `<leader>g2` / `<leader>g3`) makes them instant.
+
+### GitHub PR review comments
+
+The equivalent of Cursor's **Comments** tab: list every review comment on the
+pull request for the current branch and jump straight to the commented line.
+
+Two pieces, both needing the [`gh`](https://cli.github.com) CLI to be
+authenticated (`gh auth status`):
+
+- [`lua/util/pr_comments.lua`](lua/util/pr_comments.lua) — a small local module.
+  It resolves the PR for the current branch (`gh pr view`), pulls its review
+  threads over GraphQL (so resolved/outdated state comes with them), lists them
+  in fzf-lua with the whole thread rendered as markdown in the preview, and
+  opens the file at the commented line on `<CR>`.
+- [`octo.nvim`](https://github.com/pwntester/octo.nvim), enabled through the
+  `lazyvim.plugins.extras.util.octo` extra, for the full review workflow —
+  reading a PR, an inline diff with threads attached, replying, resolving and
+  submitting.
+
+#### Keymaps
+
+Everything lives under `<leader>gv` ("review"), which is free of collisions with
+LazyVim's and fugitive's `<leader>g` maps.
+
+| Key | Action |
+| --- | --- |
+| `<leader>gvc` | List **open** review comments on the current branch's PR |
+| `<leader>gvC` | Same, including resolved threads |
+| `<leader>gvq` | Send them to the quickfix list instead (`]q` / `[q` to walk, `<leader>xq` for Trouble) |
+| `<leader>gvp` | List PRs (Octo) |
+| `<leader>gvo` | Check out a PR (Octo) |
+| `<leader>gvs` | Start a review (Octo) |
+| `<leader>gvr` | Resume a pending review (Octo) |
+| `<leader>gvt` | Toggle the review thread panel (Octo) |
+| `<leader>gvx` | Submit the review (Octo) |
+
+Inside the `<leader>gvc` picker: `<CR>` jumps, `<C-o>` opens the thread on
+GitHub, `<C-q>` sends the whole list to quickfix. The list is marked `●` open,
+`✓` resolved, `~` outdated, and sorts open threads first.
+
+Inside an Octo review buffer the plugin's own maps apply — `]t` / `[t` move
+between threads, `<localleader>ca` adds a comment, `<localleader>rt` resolves a
+thread, `<localleader>vs` submits (LazyVim's local leader is `\`). `:Octo issue
+list`, `:Octo search` and the rest are reachable through `<leader>gi`,
+`<leader>gI`, `<leader>gP` and `<leader>gS`.
+
+> [!NOTE]
+> Comment line numbers are the ones GitHub recorded against the PR head commit.
+> If the working tree has moved on since the comment was written, the cursor
+> lands where the comment was made, not where the code now lives.
+
+> [!NOTE]
+> The octo extra also maps `<leader>gp` (PR list) and `<leader>gr` (repo list),
+> but [`lua/plugins/figutive.lua`](lua/plugins/figutive.lua) sets those to
+> `Git push` and `Gread` later during startup and wins.
+> [`lua/plugins/octo.lua`](lua/plugins/octo.lua) therefore disables both octo
+> maps so which-key stops advertising keys that never fire.
